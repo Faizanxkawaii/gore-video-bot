@@ -7,6 +7,7 @@ from telegram import Bot
 from telegram.error import TelegramError
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException, NoSuchElementException
@@ -91,7 +92,7 @@ class VideoScraperBot:
         self.chat_id = chat_id
         self.database_file = 'videos_database.json'
         self.database = self.load_database()
-        self.driver = None
+        self.driver = None  # Will be set up with webdriver-manager
     
     def load_database(self):
         """Load videos database from JSON file"""
@@ -278,3 +279,16 @@ if __name__ == '__main__':
     
     bot = VideoScraperBot(BOT_TOKEN, CHAT_ID)
     asyncio.run(bot.run())
+    def setup_driver(self):
+        """Setup Selenium Chrome driver using webdriver-manager"""
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--window-size=1920,1080')
+        
+        # Use webdriver-manager to automatically download and manage chromedriver
+        service = Service(ChromeDriverManager().install())
+        self.driver = webdriver.Chrome(service=service, options=chrome_options)
+        return self.driver
